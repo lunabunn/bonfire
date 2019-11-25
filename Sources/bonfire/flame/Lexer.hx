@@ -1,11 +1,8 @@
 package bonfire.flame;
 
-import bonfire.flame.Literal.SymbolLiteral;
-import bonfire.flame.Literal.NumberLiteral;
-import bonfire.flame.Literal.StringLiteral;
-import bonfire.flame.utils.Iterators.PeekableStringIterator;
+import bonfire.flame.Literal;
 import bonfire.flame.Token;
-import bonfire.flame.Token.TokenType;
+import bonfire.flame.utils.Iterators.PeekableStringIterator;
 import bonfire.flame.utils.Printer;
 
 class Lexer {
@@ -169,6 +166,14 @@ class Lexer {
                         tokens.push(new Token(TokenType.FUN, index));
                     case "var":
                         tokens.push(new Token(TokenType.VAR, index));
+                    case "if":
+                        tokens.push(new Token(TokenType.IF, index));
+                    case "else":
+                        tokens.push(new Token(TokenType.ELSE, index));
+                    case "elsif":
+                        tokens.push(new Token(TokenType.ELSIF, index));
+                    case "while":
+                        tokens.push(new Token(TokenType.WHILE, index));
                     default:
                         tokens.push(new Token(TokenType.SYMBOL, new SymbolLiteral(symbolRegex.matched(0)), index));
                 }

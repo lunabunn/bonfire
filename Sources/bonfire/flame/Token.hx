@@ -39,6 +39,10 @@ enum TokenType {
     // Keywords
     FUN;
     VAR;
+    IF;
+    ELSE;
+    ELSIF;
+    WHILE;
 
     // Misc.
     COMMA; // ,
