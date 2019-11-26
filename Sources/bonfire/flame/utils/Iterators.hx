@@ -35,8 +35,8 @@ class PeekableStringIterator {
 }
 
 class PeekableTokenIterator {
-    var tokens: Array<Token>;
-    var index: Int;
+    public var tokens: Array<Token>;
+    public var index: Int;
 
     public inline function new(tokens: Array<Token>) {
         this.tokens = tokens;
