@@ -26,81 +26,81 @@ class Lexer {
                     continue;
 
                 case "(":
-                    tokens.push(new Token(TokenType.L_PAREN, index));
+                    tokens.push(new Token(TokenType.L_PAREN, str, index));
                     continue;
                 case ")":
-                    tokens.push(new Token(TokenType.R_PAREN, index));
+                    tokens.push(new Token(TokenType.R_PAREN, str, index));
                     continue;
                 case "{":
-                    tokens.push(new Token(TokenType.L_CURLY, index));
+                    tokens.push(new Token(TokenType.L_CURLY, str, index));
                     continue;
                 case "}":
-                    tokens.push(new Token(TokenType.R_CURLY, index));
+                    tokens.push(new Token(TokenType.R_CURLY, str, index));
                     continue;
                 
                 case "+":
                     if (siter.eatIf("="))
-                        tokens.push(new Token(TokenType.PLUS_SET, index));
+                        tokens.push(new Token(TokenType.PLUS_SET, str, index));
                     else
-                        tokens.push(new Token(TokenType.PLUS, index));
+                        tokens.push(new Token(TokenType.PLUS, str, index));
                     continue;
                 case "-":
                     if (siter.eatIf("="))
-                        tokens.push(new Token(TokenType.MINUS_SET, index));
+                        tokens.push(new Token(TokenType.MINUS_SET, str, index));
                     else
-                        tokens.push(new Token(TokenType.MINUS, index));
+                        tokens.push(new Token(TokenType.MINUS, str, index));
                     continue;
                 case "*":
                     if (siter.eatIf("="))
-                        tokens.push(new Token(TokenType.MULT_SET, index));
+                        tokens.push(new Token(TokenType.MULT_SET, str, index));
                     else
-                        tokens.push(new Token(TokenType.MULT, index));
+                        tokens.push(new Token(TokenType.MULT, str, index));
                     continue;
                 case "/":
                     if (siter.eatIf("="))
-                        tokens.push(new Token(TokenType.DIV_SET, index));
+                        tokens.push(new Token(TokenType.DIV_SET, str, index));
                     else
-                        tokens.push(new Token(TokenType.DIV, index));
+                        tokens.push(new Token(TokenType.DIV, str, index));
                     continue;
                 case ".":
                     if (numberRegex.match(siter.string.substr(siter.index - 1))) {
-                        tokens.push(new Token(TokenType.NUMBER, new NumberLiteral(Std.parseFloat(numberRegex.matched(0))), index));
+                        tokens.push(new Token(TokenType.NUMBER, new NumberLiteral(Std.parseFloat(numberRegex.matched(0))), str, index));
                         siter.index += numberRegex.matchedPos().len - 1;
                     } else
-                        tokens.push(new Token(TokenType.DOT, index));
+                        tokens.push(new Token(TokenType.DOT, str, index));
                     continue;
                 
                 case "&":
                     if (siter.eatIf("&")) {
-                        tokens.push(new Token(TokenType.AND, index));
+                        tokens.push(new Token(TokenType.AND, str, index));
                         continue;
                     }
                 case "|":
                     if (siter.eatIf("|")) {
-                        tokens.push(new Token(TokenType.OR, index));
+                        tokens.push(new Token(TokenType.OR, str, index));
                         continue;
                     }
                 case ">":
                     if (siter.eatIf("="))
-                        tokens.push(new Token(TokenType.GREATER_EQL, index));
+                        tokens.push(new Token(TokenType.GREATER_EQL, str, index));
                     else
-                        tokens.push(new Token(TokenType.GREATER, index));
+                        tokens.push(new Token(TokenType.GREATER, str, index));
                     continue;
                 case "<":
                     if (siter.eatIf("="))
-                        tokens.push(new Token(TokenType.LESS_EQL, index));
+                        tokens.push(new Token(TokenType.LESS_EQL, str, index));
                     else
-                        tokens.push(new Token(TokenType.LESS, index));
+                        tokens.push(new Token(TokenType.LESS, str, index));
                     continue;
                 case "=":
                     if (siter.eatIf("="))
-                        tokens.push(new Token(TokenType.EQL_EQL, index));
+                        tokens.push(new Token(TokenType.EQL_EQL, str, index));
                     else
-                        tokens.push(new Token(TokenType.SET, index));
+                        tokens.push(new Token(TokenType.SET, str, index));
                     continue;
                 
                 case "!":
-                    tokens.push(new Token(TokenType.BANG, index));
+                    tokens.push(new Token(TokenType.BANG, str, index));
                     continue;
 
                 case "\"":
@@ -122,7 +122,7 @@ class Lexer {
                             value += char;
                         }
                     }
-                    tokens.push(new Token(TokenType.STRING, new StringLiteral(value), index));
+                    tokens.push(new Token(TokenType.STRING, new StringLiteral(value), str, index));
                     continue;
                 case "\'":
                     var value = "";
@@ -143,19 +143,19 @@ class Lexer {
                             value += char;
                         }
                     }
-                    tokens.push(new Token(TokenType.STRING, new StringLiteral(value), index));
+                    tokens.push(new Token(TokenType.STRING, new StringLiteral(value), str, index));
                     continue;
                 
                 case ",":
-                    tokens.push(new Token(TokenType.COMMA, index));
+                    tokens.push(new Token(TokenType.COMMA, str, index));
                     continue;
                 case ";":
-                    tokens.push(new Token(TokenType.SEMICOLON, index));
+                    tokens.push(new Token(TokenType.SEMICOLON, str, index));
                     continue;
             }
 
             if (numberRegex.match(siter.string.substr(siter.index - 1))) {
-                tokens.push(new Token(TokenType.NUMBER, new NumberLiteral(Std.parseFloat(numberRegex.matched(0))), index));
+                tokens.push(new Token(TokenType.NUMBER, new NumberLiteral(Std.parseFloat(numberRegex.matched(0))), str, index));
                 siter.index += numberRegex.matchedPos().len - 1;
                 continue;
             }
@@ -163,26 +163,26 @@ class Lexer {
             if (symbolRegex.match(siter.string.substr(siter.index - 1))) {
                 switch (symbolRegex.matched(0)) {
                     case "fun":
-                        tokens.push(new Token(TokenType.FUN, index));
+                        tokens.push(new Token(TokenType.FUN, str, index));
                     case "var":
-                        tokens.push(new Token(TokenType.VAR, index));
+                        tokens.push(new Token(TokenType.VAR, str, index));
                     case "if":
-                        tokens.push(new Token(TokenType.IF, index));
+                        tokens.push(new Token(TokenType.IF, str, index));
                     case "else":
-                        tokens.push(new Token(TokenType.ELSE, index));
+                        tokens.push(new Token(TokenType.ELSE, str, index));
                     case "elsif":
-                        tokens.push(new Token(TokenType.ELSIF, index));
+                        tokens.push(new Token(TokenType.ELSIF, str, index));
                     case "while":
-                        tokens.push(new Token(TokenType.WHILE, index));
+                        tokens.push(new Token(TokenType.WHILE, str, index));
                     default:
-                        tokens.push(new Token(TokenType.SYMBOL, new SymbolLiteral(symbolRegex.matched(0)), index));
+                        tokens.push(new Token(TokenType.SYMBOL, new SymbolLiteral(symbolRegex.matched(0)), str, index));
                 }
                 continue;
             }
 
             Printer.trace('${str.charAt(index)} is not a valid token.', str, index);
         }
-        tokens.push(new Token(TokenType.EOF, siter.index));
+        tokens.push(new Token(TokenType.EOF, str, siter.index));
         return tokens;
     }
 }

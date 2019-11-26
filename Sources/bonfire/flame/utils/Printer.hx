@@ -3,9 +3,13 @@ package bonfire.flame.utils;
 import haxe.Log;
 
 class Printer {
-    public static function trace(str: String, source: String=null, position: Int=null) {
+    public static function trace(str: String, token: Token=null, source: String=null, position: Int=null) {
         var sb = "";
         sb += 'FlameScript > $str';
+        if (token != null) {
+            source = token.source;
+            position = token.position;
+        }
         if (source != null && position != null) {
             var lines = source.split("\n");
             var charCount = -1;

@@ -53,11 +53,13 @@ enum TokenType {
 class Token {
     public var type: TokenType;
     public var value: Null<Literal>;
+    public var source: String;
     public var position: Int;
 
-    public function new<T>(type: TokenType, ?value: Literal, position: Int) {
+    public function new<T>(type: TokenType, ?value: Literal, source: String, position: Int) {
         this.type = type;
         this.value = value;
+        this.source = source;
         this.position = position;
     }
 }
