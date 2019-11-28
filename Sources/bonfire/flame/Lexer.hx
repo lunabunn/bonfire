@@ -177,6 +177,7 @@ class Lexer {
                     default:
                         tokens.push(new Token(TokenType.SYMBOL, new SymbolLiteral(symbolRegex.matched(0)), str, index));
                 }
+                siter.index += symbolRegex.matchedPos().len - 1;
                 continue;
             }
 
