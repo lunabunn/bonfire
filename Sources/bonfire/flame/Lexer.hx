@@ -149,9 +149,6 @@ class Lexer {
                 case ",":
                     tokens.push(new Token(TokenType.COMMA, str, index));
                     continue;
-                case ";":
-                    tokens.push(new Token(TokenType.SEMICOLON, str, index));
-                    continue;
             }
 
             if (numberRegex.match(siter.string.substr(siter.index - 1))) {
@@ -170,8 +167,6 @@ class Lexer {
                         tokens.push(new Token(TokenType.IF, str, index));
                     case "else":
                         tokens.push(new Token(TokenType.ELSE, str, index));
-                    case "elsif":
-                        tokens.push(new Token(TokenType.ELSIF, str, index));
                     case "while":
                         tokens.push(new Token(TokenType.WHILE, str, index));
                     default:

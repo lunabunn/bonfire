@@ -41,12 +41,10 @@ enum TokenType {
     VAR;
     IF;
     ELSE;
-    ELSIF;
     WHILE;
 
     // Misc.
     COMMA; // ,
-    SEMICOLON; // ;
     EOF; // Appeneded automatically at end of file
 }
 
