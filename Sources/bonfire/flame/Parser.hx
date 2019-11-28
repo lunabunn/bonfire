@@ -72,13 +72,30 @@ class Parser {
         if (titer.peekIf(TokenType.BANG) || titer.peekIf(TokenType.MINUS)) {
             return new UnaryExpression(titer.next(), unaryExpr(titer));
         }
-        return dotExpr(titer);
+        return dotFuncCallExpr(titer);
     }
 
-    static function dotExpr(titer: PTI): Expr {
+    static function dotFuncCallExpr(titer: PTI): Expr {
         var expr = primary(titer);
+        var args: Array<Expr>, arg: Expr;
         while (titer.peekIf(TokenType.DOT)) {
             expr = new BinaryExpression(titer.next(), expr, primary(titer));
+            while (titer.eatIf(TokenType.L_PAREN)) {
+                args = new Array<Expr>();
+                arg = expression(titer);
+                if (arg == null) {
+                    titer.eatIf(R_PAREN);
+                    expr = new FuncCallExpr(expr, args);
+                } else {
+                    args.push(arg);
+                    while (titer.eatIf(TokenType.COMMA)) {
+                        arg = expression(titer);
+                        args.push(arg);
+                    }
+                    titer.eatIf(R_PAREN);
+                    expr = new FuncCallExpr(expr, args);
+                }
+            }
         }
         return expr;
     }
