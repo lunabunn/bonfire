@@ -1,6 +1,6 @@
 package bonfire.flame;
 
-interface Literal {}
+interface Literal extends Expr {}
 
 class StringLiteral implements Literal {
     public var value: String;
