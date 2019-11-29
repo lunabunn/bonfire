@@ -24,6 +24,11 @@ class Lexer {
                     continue;
                 case "\n":
                     continue;
+                case "\r":
+                    continue;
+                case "\t":
+                    continue;
+                
 
                 case "(":
                     tokens.push(new Token(TokenType.L_PAREN, str, index));
