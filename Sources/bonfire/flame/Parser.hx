@@ -13,15 +13,29 @@ class Parser {
     public static function parse(tokens: Array<Token>): Array<Stmt> {
         var titer = new PTI(tokens);
         hadError = false;
-        var stmts = new Array<Stmt>(), stmt: Stmt;
-        while (true) {
-            if ((stmt = statement(titer)) != null) {
-                stmts.push(stmt);
-            } else if (titer.eatIf(TokenType.EOF)) {
-                break;
-            } else {
-                err('Expected start of statement, got ${titer.peek().type}', titer.next());
+        var stmts = new Array<Stmt>();
+        var stmt: Stmt = null;
+        while (!titer.eatIf(EOF)) {
+            try {
+                stmt = statement(titer);
+                if (stmt == null) {
+                    throw new ParseError(titer.peek(), 'Expected start of statement, got unexpected ${titer.peek().type}');
+                }
+            } catch(e: ParseError) {
+                err(e.message, e.token);
+                titer.index++;
+                while ((try {
+                    (stmt = statement(titer)) == null;
+                } catch (e: ParseError) {
+                    true;
+                })) {
+                    if (titer.eatIf(EOF)) {
+                        return stmts;
+                    }
+                    titer.index++;
+                }
             }
+            stmts.push(stmt);
         }
         return stmts;
     }
@@ -47,24 +61,20 @@ class Parser {
 
     static function funcDecStmt(titer: PTI): Stmt {
         titer.index++;
-        var symbol: SymbolLiteral = null;
-        if (titer.peekIf(TokenType.SYMBOL)) {
-            symbol = cast titer.next().value;
-        }
+        var symbol: SymbolLiteral = cast titer.consume(SYMBOL, 'Expected SYMBOL after FUN, got unexpected ${titer.peek().type}').value;
         var args: Array<SymbolLiteral> = null, arg: SymbolLiteral;
-        if (titer.eatIf(TokenType.L_PAREN)) {
-            args = new Array<SymbolLiteral>();
-            arg = titer.peekIf(TokenType.SYMBOL)? cast titer.next().value:null;
-            if (arg == null) {
-                titer.eatIf(R_PAREN);
-            } else {
+        titer.consume(L_PAREN, 'Expected L_PAREN after SYMBOL in function declaration statement, got unexpected ${titer.peek().type}');
+        args = new Array<SymbolLiteral>();
+        arg = titer.peekIf(TokenType.SYMBOL)? cast titer.next().value:null;
+        if (arg == null) {
+            titer.consume(R_PAREN, 'Expected R_PAREN after function argument list, got unexpected ${titer.peek().type}');
+        } else {
+            args.push(arg);
+            while (titer.eatIf(TokenType.COMMA)) {
+                arg = cast titer.consume(SYMBOL, 'Expected SYMBOL after COMMA in function declaration statement, got unexpected ${titer.peek().type}').value;
                 args.push(arg);
-                while (titer.eatIf(TokenType.COMMA)) {
-                    arg = titer.peekIf(TokenType.SYMBOL)? cast titer.next().value:null;
-                    args.push(arg);
-                }
-                titer.eatIf(R_PAREN);
             }
+            titer.consume(R_PAREN, 'Expected R_PAREN after function argument list, got unexpected ${titer.peek().type}');
         }
         var body = statement(titer);
         return new FuncDecStmt(symbol, args, body);
@@ -72,29 +82,26 @@ class Parser {
 
     static function varDecStmt(titer: PTI): Stmt {
         titer.index++;
-        var symbol: SymbolLiteral = null;
-        if (titer.peekIf(TokenType.SYMBOL)) {
-            symbol = cast titer.next().value;
-        }
-        titer.eatIf(TokenType.SET);
+        var symbol: SymbolLiteral = cast titer.consume(SYMBOL, 'Expected SYMBOL after VAR, got unexpected ${titer.peek().type}').value;
+        titer.consume(SET, 'Expected SET after SYMBOL in variable declaration statement, got unexpected ${titer.peek().type}');
         var value = expression(titer);
         return new VarDecStmt(symbol, value);
     }
 
     static function whileStmt(titer: PTI): Stmt {
         titer.index++;
-        titer.eatIf(TokenType.L_PAREN);
+        titer.consume(TokenType.L_PAREN, 'Expected L_PAREN after WHILE, got unexpected ${titer.peek().type}');
         var condition = setExpr(titer);
-        titer.eatIf(TokenType.R_PAREN);
+        titer.consume(TokenType.R_PAREN, 'Expected R_PAREN after while condition, got unexpected ${titer.peek().type}');
         var stmt = statement(titer);
         return new WhileStmt(condition, stmt);
     }
 
     static function ifStmt(titer: PTI): Stmt {
         titer.index++;
-        titer.eatIf(TokenType.L_PAREN);
+        titer.consume(TokenType.L_PAREN, 'Expected L_PAREN after IF, got unexpected ${titer.peek().type}');
         var condition = setExpr(titer);
-        titer.eatIf(TokenType.R_PAREN);
+        titer.consume(TokenType.R_PAREN, 'Expected R_PAREN after if condition, got unexpected ${titer.peek().type}');
         var stmt = statement(titer);
         if (titer.eatIf(TokenType.ELSE)) {
             return new IfStmt(condition, stmt, statement(titer));    
@@ -109,7 +116,7 @@ class Parser {
             if (titer.peekIf(TokenType.SET) || titer.peekIf(TokenType.PLUS_SET) || titer.peekIf(TokenType.MINUS_SET) || titer.peekIf(TokenType.MULT_SET) || titer.peekIf(TokenType.DIV_SET)) {
                 expr = new BinaryExpression(titer.next(), expr, setExpr(titer));
             } else {
-                err("Expected a statement, got an expression", token);
+                throw new ParseError(token, "Expected a statement, got an expression");
             }
         }
         return new ExprStmt(expr);
@@ -121,7 +128,7 @@ class Parser {
         while ((stmt = statement(titer)) != null) {
             stmts.push(stmt);
         }
-        titer.eatIf(TokenType.R_CURLY);
+        titer.consume(TokenType.R_CURLY, 'Expected R_CURLY after compound statement block, got unexpected ${titer.peek().type}');
         return new CompoundStmt(stmts);
     }
 
@@ -192,7 +199,7 @@ class Parser {
             args = new Array<Expr>();
             arg = expression(titer);
             if (arg == null) {
-                titer.eatIf(R_PAREN);
+                titer.consume(R_PAREN, 'Expected R_PAREN after function argument list, got unexpected ${titer.peek().type}');
                 expr = new FuncCallExpr(expr, args);
             } else {
                 args.push(arg);
@@ -200,7 +207,7 @@ class Parser {
                     arg = expression(titer);
                     args.push(arg);
                 }
-                titer.eatIf(R_PAREN);
+                titer.consume(R_PAREN, 'Expected R_PAREN after function argument list, got unexpected ${titer.peek().type}');
                 expr = new FuncCallExpr(expr, args);
             }
         }
@@ -210,7 +217,7 @@ class Parser {
                 args = new Array<Expr>();
                 arg = expression(titer);
                 if (arg == null) {
-                    titer.eatIf(R_PAREN);
+                    titer.consume(R_PAREN, 'Expected R_PAREN after function argument list, got unexpected ${titer.peek().type}');
                     expr = new FuncCallExpr(expr, args);
                 } else {
                     args.push(arg);
@@ -218,7 +225,7 @@ class Parser {
                         arg = expression(titer);
                         args.push(arg);
                     }
-                    titer.eatIf(R_PAREN);
+                    titer.consume(R_PAREN, 'Expected R_PAREN after function argument list, got unexpected ${titer.peek().type}');
                     expr = new FuncCallExpr(expr, args);
                 }
             }

@@ -66,4 +66,11 @@ class PeekableTokenIterator {
     public inline function peekIf(type: Token.TokenType, n: Int=0) {
         return peek(n).type == type;
     }
+
+    public inline function consume(type: Token.TokenType, message: String) {
+        if (peek().type == type) {
+            return next();
+        }
+        throw new ParseError(peek(), message);
+    }
 }
