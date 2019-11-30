@@ -1,4 +1,4 @@
-# bonfire-core
+# bonfire-core ![](https://img.shields.io/github/license/solarrabbit/bonfire) ![](https://img.shields.io/github/issues/solarrabbit/bonfire)
 
 A simple but flexible framework to create 2D top-down adventure games, JRPG games, and more.
 
@@ -12,17 +12,5 @@ A simple but flexible framework to create 2D top-down adventure games, JRPG game
 3. ***Hackable***
     bonfire is open source and is easy to build/test out of the box. This makes it trivial for you to make changes to the core codebase or push changes to it.
 
-### Contribution guidelines
+### Contribution
 If you find a bug or have a feature request, please feel free to open an issue/PR!
-
-#### Branch naming scheme
-I like to name my branches using `kebab-case`, with the following prefixes to categorize them:
-
-| Prefix | Usage                                                                 |
-|--------|-----------------------------------------------------------------------|
-| `wip-`   | Long-term, large-scale changes or additions                           |
-| `feat-`  | Enhancements that build upon existing features or implement a new one |
-| `fix-`   | Bugfixes or refactoring; should never introduce breaking changes      |
-| `exp-`   | Throwaway branches for experimentation; may never be pushed to master |
-
-To minimize cognitive strain, it is highly recommended that you also follow this branch naming scheme with any PRs you submit.
